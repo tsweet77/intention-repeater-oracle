@@ -45,6 +45,9 @@ if (isset($_POST['report_improper_image'])) {
     if (isset($_POST['cardimage'])) {
         $cardimage = $_POST['cardimage']; // Correctly get the image name from POST data
         $prompt = $_POST['prompt']; // Correctly get the image name from POST data
+        $cleaned_prompt = str_replace(['<?php echo htmlspecialchars(', '); ?>'], '', $prompt);
+        $cleaned_cardimage = str_replace(['<?php echo htmlspecialchars(', '); ?>'], '', $cardimage);
+
         // Use the image filename from the hidden input
         $imageName = $cardimage;
 
@@ -57,9 +60,9 @@ if (isset($_POST['report_improper_image'])) {
         // Append the image name, timestamp, and additional information to "reported_images.txt"
         $file = fopen("reported_images.txt", "a");
         if ($file) {
-            fwrite($file, "$timestamp - $imageName\n");
+            fwrite($file, "$timestamp - $cleaned_cardimage\n");
             fwrite($file, "Additional Info: $additionalInfo\n\n");
-            fwrite($file, "DALL-E Prompt: $prompt\n\n");
+            fwrite($file, "DALL-E Prompt: $cleaned_prompt\n\n");
             fclose($file);
         } else {
             error_log("Failed to open reported_images.txt for writing.");
@@ -75,7 +78,7 @@ if (isset($_POST['report_improper_image'])) {
                 // Email details
                 $to = "healing@intentionrepeater.com";
                 $subject = "Intention Repeater Oracle: Image Feedback Received";
-                $message = "Image Reported: " . $cardimage . "\n\nAdditional Info: " . $additionalInfo . "\n\nDALL-E Prompt: " . $prompt;
+                $message = "Image Reported: " . $cleaned_cardimage . "\n\nAdditional Info: " . $additionalInfo . "\n\nDALL-E Prompt: " . $cleaned_prompt;
                 $headers = "From: oracle-noreply@intentionrepeater.com\r\n";
                 $headers .= "Reply-To: oracle-noreply@intentionrepeater.com\r\n";
                 $headers .= "X-Mailer: PHP/" . phpversion();
