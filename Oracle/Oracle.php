@@ -60,6 +60,28 @@ if (isset($_POST['report_improper_image'])) {
         } else {
             error_log("Failed to open reported_images.txt for writing.");
         }
+
+        // Check if the "send_emails.txt" file exists
+        if (file_exists('send_emails.txt')) {
+            // Read the content of the file
+            $send_email_flag = trim(file_get_contents('send_emails.txt'));
+
+            // Check if the value is "1"
+            if ($send_email_flag === "1") {
+                // Email details
+                $to = "healing@intentionrepeater.com";
+                $subject = "Intention Repeater Oracle: Image Reported";
+                $message = "Image Reported: " . $cardimage . "\n\nAdditional Info: " . $additionalInfo;
+                $headers = "From: oracle-noreply@intentionrepeater.com\r\n";
+                $headers .= "Reply-To: oracle-noreply@intentionrepeater.com\r\n";
+                $headers .= "X-Mailer: PHP/" . phpversion();
+
+                // Send the email
+                mail($to, $subject, $message, $headers);
+            }
+        } else {
+            error_log("send_emails.txt does not exist.");
+        }
     }
 
     // Exit after handling the AJAX request to avoid further processing
@@ -215,7 +237,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
                         <input type='hidden' name='category_text' value='<?php echo htmlspecialchars($category_text); ?>'>
                         <input type='hidden' name='topic_text' value='<?php echo htmlspecialchars($topic_text); ?>'>
                         <input type='hidden' name='query' value='<?php echo htmlspecialchars($query); ?>'>
-                        <button type='submit'>Report Improper Image</button>
+                        <button type='submit'>Report Comment on Image</button>
                     </form>
                 </form>
                 </td>
