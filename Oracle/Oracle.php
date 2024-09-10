@@ -2,6 +2,8 @@
 <html>
 <head>
 <script>
+//This uses send_emails.txt to determine if to send an email. Value of 1 means to send an email with each image feedback. Can prevent abuse.
+
 // JavaScript function to handle AJAX request
 function reportImage() {
     // Prompt the user for additional information
@@ -237,7 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
                         <input type='hidden' name='category_text' value='<?php echo htmlspecialchars($category_text); ?>'>
                         <input type='hidden' name='topic_text' value='<?php echo htmlspecialchars($topic_text); ?>'>
                         <input type='hidden' name='query' value='<?php echo htmlspecialchars($query); ?>'>
-                        <button type='submit'>Report Comment on Image</button>
+                        <button type='submit'>Provide Image Feedback</button>
                     </form>
                 </form>
                 </td>
