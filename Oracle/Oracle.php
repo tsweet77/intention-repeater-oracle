@@ -20,7 +20,7 @@
 </head>
 <body>
     <h1>Intention Repeater Oracle</h1>
-    <h2>by Anthro Teacher and ChatGPT</h2>
+    <h2>by Anthro Teacher, ChatGPT and DALL-E</h2>
     <form method="post">
         <table>
             <tr>
@@ -70,11 +70,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
     // Step 3: Initialize new_query with original_query
     $new_query = $original_query;
 
-    $hash_of_file = hash_file('sha256', './Cards.txt');
+    $hash_of_file = hash_file('sha512', './Cards.txt');
 
-    // Step 4: Repeatedly hash the query 888 times with SHA256
+    // Step 4: Repeatedly hash the query 888 times with sha512
     for ($i = 0; $i < 888; $i++) {
-        $new_query = hash('sha256', $original_query . ':' . $new_query  . ':' . $hash_of_file . ':' . $seed);
+        $new_query = hash('sha512', $original_query . ':' . $new_query  . ':' . $hash_of_file . ':' . $seed);
     }
 
     // Step 5: Convert the hash value to an integer (selectedcard) from 1 to 208
@@ -121,7 +121,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
             <tr>
                 <td>$details</td>
             </tr>
+            <tr>
+                <td><BR><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></td>
+            </tr>
           </table>";
+} else {
+    echo "<center><BR><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></center>";
 }
 ?>
 </body>
