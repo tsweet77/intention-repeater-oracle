@@ -7,7 +7,7 @@
 // JavaScript function to handle AJAX request
 function reportImage() {
     // Prompt the user for additional information
-    var additionalInfo = prompt("Information about the Reported Image:");
+    var additionalInfo = prompt("Feedback about the Image:");
 
     // If the user cancels the prompt or doesn't provide any input, do not proceed
     if (additionalInfo === null || additionalInfo.trim() === "") {
@@ -27,7 +27,7 @@ function reportImage() {
     // Define what happens on successful data submission
     xhr.onload = function() {
         if (xhr.status === 200) {
-            alert('Image Reported. Thank you.');
+            alert('Feedback Sent. Thank you.');
         } else {
             alert('An error occurred. Please try again.');
         }
