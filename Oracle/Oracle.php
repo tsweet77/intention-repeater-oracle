@@ -72,7 +72,7 @@ if (isset($_POST['report_improper_image'])) {
             if ($send_email_flag === "1") {
                 // Email details
                 $to = "healing@intentionrepeater.com";
-                $subject = "Intention Repeater Oracle: Image Reported";
+                $subject = "Intention Repeater Oracle: Image Feedback Received";
                 $message = "Image Reported: " . $cardimage . "\n\nAdditional Info: " . $additionalInfo;
                 $headers = "From: oracle-noreply@intentionrepeater.com\r\n";
                 $headers .= "Reply-To: oracle-noreply@intentionrepeater.com\r\n";
