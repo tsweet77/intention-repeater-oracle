@@ -40,6 +40,26 @@
     </form>
 
 <?php
+
+// Define the file path
+$file_path = 'counter.txt';
+
+// Check if the file exists
+if (file_exists($file_path)) {
+    // Read the current counter value from the file
+    $counter = (int) file_get_contents($file_path);
+} else {
+    // If the file does not exist, initialize the counter to 0
+    $counter = 0;
+}
+
+// Increment the counter by one
+$counter++;
+
+// Write the updated counter value back to the file
+file_put_contents($file_path, $counter);
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
     // Step 1: Retrieve the original query from the input
     $original_query = $_POST['query'];
