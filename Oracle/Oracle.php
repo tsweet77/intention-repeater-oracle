@@ -58,7 +58,7 @@ if (isset($_POST['report_improper_image'])) {
         $file = fopen("reported_images.txt", "a");
         if ($file) {
             fwrite($file, "$timestamp - $imageName\n");
-            fwrite($file, "Additional Info: $additionalInfo\n");
+            fwrite($file, "Additional Info: $additionalInfo\n\n");
             fwrite($file, "DALL-E Prompt: $prompt\n\n");
             fclose($file);
         } else {
