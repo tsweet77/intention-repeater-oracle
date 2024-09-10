@@ -44,6 +44,7 @@ function reportImage() {
 if (isset($_POST['report_improper_image'])) {
     if (isset($_POST['cardimage'])) {
         $cardimage = $_POST['cardimage']; // Correctly get the image name from POST data
+        $prompt = $_POST['prompt']; // Correctly get the image name from POST data
         // Use the image filename from the hidden input
         $imageName = $cardimage;
 
@@ -57,7 +58,8 @@ if (isset($_POST['report_improper_image'])) {
         $file = fopen("reported_images.txt", "a");
         if ($file) {
             fwrite($file, "$timestamp - $imageName\n");
-            fwrite($file, "Additional Info: $additionalInfo\n\n");
+            fwrite($file, "Additional Info: $additionalInfo\n");
+            fwrite($file, "DALL-E Prompt: $prompt\n\n");
             fclose($file);
         } else {
             error_log("Failed to open reported_images.txt for writing.");
@@ -73,7 +75,7 @@ if (isset($_POST['report_improper_image'])) {
                 // Email details
                 $to = "healing@intentionrepeater.com";
                 $subject = "Intention Repeater Oracle: Image Feedback Received";
-                $message = "Image Reported: " . $cardimage . "\n\nAdditional Info: " . $additionalInfo;
+                $message = "Image Reported: " . $cardimage . "\n\nAdditional Info: " . $additionalInfo . "\n\nDALL-E Prompt: " . $prompt;
                 $headers = "From: oracle-noreply@intentionrepeater.com\r\n";
                 $headers .= "Reply-To: oracle-noreply@intentionrepeater.com\r\n";
                 $headers .= "X-Mailer: PHP/" . phpversion();
@@ -195,6 +197,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
             $details_start = strpos($line, ' - ', $topic_text_end) + 3;
             $details_end = strpos($line, 'Prompt:');
             $details = trim(substr($line, $details_start, $details_end - $details_start));
+
+            // Extract everything after "Prompt: "
+            $prompt_start = strpos($line, 'Prompt:') + strlen('Prompt: ');
+            $prompt = trim(substr($line, $prompt_start));
             break;
         }
     }
@@ -202,6 +208,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
     if (isset($_POST['cardimage'])) {
         $cardimage = $_POST['cardimage']; // Correctly get the image name from POST data
         echo "<script>alert('Image Reported. Thank you.');</script>";
+    }
+
+    if (isset($_POST['prompt'])) {
+        $cardimage = $_POST['prompt']; // Correctly get the image name from POST data
     }
     
     // Check if details are already set; if not, assign from POST data or default value
@@ -239,6 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
                         <input type='hidden' name='category_text' value='<?php echo htmlspecialchars($category_text); ?>'>
                         <input type='hidden' name='topic_text' value='<?php echo htmlspecialchars($topic_text); ?>'>
                         <input type='hidden' name='query' value='<?php echo htmlspecialchars($query); ?>'>
+                        <input type='hidden' name='prompt' value='<?php echo htmlspecialchars($prompt); ?>'>
                         <button type='submit'>Provide Image Feedback</button>
                     </form>
                 </form>
