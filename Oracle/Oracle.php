@@ -50,16 +50,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
     // Step 3: Initialize new_query with original_query
     $new_query = $original_query;
 
+    $hash_of_file = hash_file('sha256', './Cards.txt');
+
     // Step 4: Repeatedly hash the query 888 times with SHA256
     for ($i = 0; $i < 888; $i++) {
-        $new_query = hash('sha256', $original_query . ':' . $new_query . ':' . $seed);
+        $new_query = hash('sha256', $original_query . ':' . $new_query  . ':' . $hash_of_file . ':' . $seed);
     }
 
-    // Step 5: Convert the hash value to an integer (selectedcard) from 1 to 176
-    $selectedcard = intval(hexdec(substr($new_query, 0, 8))) % 176 + 1; // Convert hex to int and get a number between 1-176
+    // Step 5: Convert the hash value to an integer (selectedcard) from 1 to 208
+    $selectedcard = intval(hexdec(substr($new_query, 0, 8))) % 208 + 1; // Convert hex to int and get a number between 1-208
 
     // Step 6: Determine card image
-    $category_number = ceil($selectedcard / 4); // Determine category number (1 to 44)
+    $category_number = ceil($selectedcard / 4); // Determine category number (1 to 52)
     $iteration_number = $selectedcard % 4 + 1;  // Determine iteration number (1-4)
     $cardimage = $category_number . '-' . $iteration_number . '.jpg';
 
