@@ -1,6 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>
+// JavaScript function to handle AJAX request
+function reportImage() {
+    // Prompt the user for additional information
+    var additionalInfo = prompt("Information about the Reported Image:");
+
+    // If the user cancels the prompt or doesn't provide any input, do not proceed
+    if (additionalInfo === null || additionalInfo.trim() === "") {
+        alert("Report canceled. No additional information provided.");
+        return false;
+    }
+
+    var xhr = new XMLHttpRequest(); // Create a new XMLHttpRequest object
+    var formData = new FormData(document.getElementById('reportForm')); // Create FormData object from the form
+
+    // Manually append the button value to the FormData
+    formData.append('report_improper_image', '1'); // Add the button's name to the form data
+
+    // Append the additional information to the form data
+    formData.append('additional_info', additionalInfo);
+
+    // Define what happens on successful data submission
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            alert('Image Reported. Thank you.');
+        } else {
+            alert('An error occurred. Please try again.');
+        }
+    };
+
+    // Set up the request to the same PHP page
+    xhr.open('POST', window.location.href, true); 
+    xhr.send(formData); // Send the request with form data
+    return false; // Prevent form submission
+}
+</script>
+<?php
+// Check if the form has been submitted to report an improper image
+if (isset($_POST['report_improper_image'])) {
+    if (isset($_POST['cardimage'])) {
+        $cardimage = $_POST['cardimage']; // Correctly get the image name from POST data
+        // Use the image filename from the hidden input
+        $imageName = $cardimage;
+
+        // Get the current date and timestamp
+        $timestamp = date('Y-m-d H:i:s');
+
+        // Retrieve additional information from the AJAX request
+        $additionalInfo = isset($_POST['additional_info']) ? $_POST['additional_info'] : 'No additional information provided';
+
+        // Append the image name, timestamp, and additional information to "reported_images.txt"
+        $file = fopen("reported_images.txt", "a");
+        if ($file) {
+            fwrite($file, "$timestamp - $imageName\n");
+            fwrite($file, "Additional Info: $additionalInfo\n\n");
+            fclose($file);
+        } else {
+            error_log("Failed to open reported_images.txt for writing.");
+        }
+    }
+
+    // Exit after handling the AJAX request to avoid further processing
+    exit;
+}
+?>
     <title>Intention Repeater Oracle</title>
     <style>
         table {
@@ -73,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
     $hash_of_file = hash_file('sha512', './Cards.txt');
 
     // Step 4: Repeatedly hash the query 888 times with sha512
-    for ($i = 0; $i < 888; $i++) {
+    for ($i = 0; $i < 1111; $i++) {
         $new_query = hash('sha512', $original_query . ':' . $new_query  . ':' . $hash_of_file . ':' . $seed);
     }
 
@@ -110,24 +175,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
         }
     }
 
-    // Step 8: Display the selected card and details
-    echo "<table width='800' style='margin-top: 20px;'>
+    if (isset($_POST['cardimage'])) {
+        $cardimage = $_POST['cardimage']; // Correctly get the image name from POST data
+        echo "<script>alert('Image Reported. Thank you.');</script>";
+    }
+    
+    // Check if details are already set; if not, assign from POST data or default value
+    if (isset($_POST['details'])) {
+        $details = $_POST['details']; // Replace with your dynamic variable
+    }
+
+    if (isset($_POST['category_text'])) {
+        $category_text = $_POST['category_text']; // Replace with your dynamic variable
+    }
+    
+    // Check if details are already set; if not, assign from POST data or default value
+    if (isset($_POST['topic_text'])) {
+        $topic_text = $_POST['topic_text']; // Replace with your dynamic variable
+    }
+
+    // Display the selected card and details
+            // Display the selected card and details
+            echo "<table width='800' style='margin-top: 20px;'>
             <tr>
-                <td><br><img src='./$cardimage' alt='Card Image'><br></td>
+                <td colspan=2><br><img src='./$cardimage' alt='Card Image'><br></td>
             </tr>
             <tr>
-                <td><h2>$category_text - $topic_text</h2></td>
+                <td colspan=2><h2>$category_text - $topic_text</h2></td>
             </tr>
             <tr>
-                <td>$details</td>
+                <td colspan=2>$details</td>
             </tr>
             <tr>
-                <td><BR><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></td>
+                <td><br><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></td>
+                <td>
+                    <form id='reportForm' method='post' style='display:inline;' onsubmit='return reportImage();'>
+                        <input type='hidden' name='cardimage' value='<?php echo htmlspecialchars($cardimage); ?>'>
+                        <input type='hidden' name='details' value='<?php echo htmlspecialchars($details); ?>'>
+                        <input type='hidden' name='category_text' value='<?php echo htmlspecialchars($category_text); ?>'>
+                        <input type='hidden' name='topic_text' value='<?php echo htmlspecialchars($topic_text); ?>'>
+                        <input type='hidden' name='query' value='<?php echo htmlspecialchars($query); ?>'>
+                        <button type='submit'>Report Improper Image</button>
+                    </form>
+                </form>
+                </td>
             </tr>
-          </table>";
-} else {
-    echo "<center><BR><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></center>";
-}
+        </table>";
+    } else {
+    echo '<center><br><a href="https://www.intentionrepeater.com/">INTENTION REPEATER HOME</a></center>';
+    }
 ?>
 </body>
 </html>
