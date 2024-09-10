@@ -1,44 +1,164 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script>
-//This uses send_emails.txt to determine if to send an email. Value of 1 means to send an email with each image feedback. Can prevent abuse.
-
-// JavaScript function to handle AJAX request
-function reportImage() {
-    // Prompt the user for additional information
-    var additionalInfo = prompt("Feedback about the Image:");
-
-    // If the user cancels the prompt or doesn't provide any input, do not proceed
-    if (additionalInfo === null || additionalInfo.trim() === "") {
-        alert("Report canceled. No additional information provided.");
-        return false;
+<style>
+    /* Modal styling */
+    #feedbackModal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        background-color: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 1000; /* Above other elements */
+        padding: 20px;
+        border-radius: 8px;
+        resize: both; /* Allows resizing */
+        overflow: auto; /* Enable scrolling if content is too big */
     }
 
-    var xhr = new XMLHttpRequest(); // Create a new XMLHttpRequest object
-    var formData = new FormData(document.getElementById('reportForm')); // Create FormData object from the form
+    #feedbackModal textarea {
+        width: 100%;
+        height: 100px;
+        resize: vertical; /* Allow vertical resizing of textarea */
+    }
 
-    // Manually append the button value to the FormData
-    formData.append('report_improper_image', '1'); // Add the button's name to the form data
+    #feedbackOverlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5); /* Semi-transparent background */
+        z-index: 999; /* Behind modal */
+    }
 
-    // Append the additional information to the form data
-    formData.append('additional_info', additionalInfo);
+    #feedbackModalHeader {
+        cursor: move; /* Indicate draggable header */
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+        font-weight: bold;
+    }
 
-    // Define what happens on successful data submission
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            alert('Feedback Sent. Thank you.');
-        } else {
-            alert('An error occurred. Please try again.');
-        }
-    };
+    #feedbackButtons {
+        margin-top: 10px;
+        text-align: right;
+    }
+</style>
+<!--This uses send_emails.txt to determine if to send an email. Value of 1 means to send an email with each image feedback. Can prevent abuse.-->
+<!-- Feedback modal overlay -->
+    <div id="feedbackOverlay"></div>
 
-    // Set up the request to the same PHP page
-    xhr.open('POST', window.location.href, true); 
-    xhr.send(formData); // Send the request with form data
-    return false; // Prevent form submission
+    <!-- Feedback modal -->
+    <div id="feedbackModal">
+        <div id="feedbackModalHeader">Feedback about the Image</div>
+        <textarea id="feedbackTextarea" maxlength="5000" placeholder="Enter your feedback..."></textarea>
+        <div id="feedbackButtons">
+            <button onclick="submitFeedback()">Submit</button>
+            <button onclick="closeFeedbackModal()">Cancel</button>
+        </div>
+    </div>
+
+<script>
+// Function to show the modal
+function showFeedbackModal() {
+    var modal = document.getElementById('feedbackModal');
+    var overlay = document.getElementById('feedbackOverlay');
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    dragElement(modal); // Make the modal draggable
 }
-</script>
+
+// Function to close the modal
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').style.display = 'none';
+    document.getElementById('feedbackOverlay').style.display = 'none';
+}
+
+// Function to handle feedback submission
+function submitFeedback() {
+    var additionalInfo = document.getElementById('feedbackTextarea').value.trim();
+    if (additionalInfo.length > 0) {
+        closeFeedbackModal();
+        reportImage(additionalInfo); // Send feedback to the server
+    } else {
+        alert('Please provide some feedback before submitting.');
+    }
+}
+
+// Function to make the modal draggable
+function dragElement(element) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var header = document.getElementById("feedbackModalHeader");
+    if (header) {
+        // If present, the header is where you move the DIV from
+        header.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Get the mouse cursor position at startup
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // Call a function whenever the cursor moves
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Calculate the new cursor position
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Set the element's new position
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        // Stop moving when mouse button is released
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+
+// Function to handle the feedback submission
+function reportImage(additionalInfo) {
+            var xhr = new XMLHttpRequest(); // Create a new XMLHttpRequest object
+            var formData = new FormData(document.getElementById('reportForm')); // Create FormData object from the form
+
+            // Manually append the button value to the FormData
+            formData.append('report_improper_image', '1'); // Add the button's name to the form data
+
+            // Append the additional information to the form data
+            formData.append('additional_info', additionalInfo);
+
+            // Define what happens on successful data submission
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('Image Feedback Sent. Thank you.');
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            };
+
+            // Set up the request to the same PHP page
+            xhr.open('POST', window.location.href, true); 
+            xhr.send(formData); // Send the request with form data
+            return false; // Prevent form submission
+        }
+    </script>
 <?php
 // Check if the form has been submitted to report an improper image
 if (isset($_POST['report_improper_image'])) {
@@ -246,14 +366,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['query'])) {
             <tr>
                 <td><br><a href='https://www.intentionrepeater.com/'>INTENTION REPEATER HOME</a></td>
                 <td>
-                    <form id='reportForm' method='post' style='display:inline;' onsubmit='return reportImage();'>
+                    <!-- Button to trigger the modal -->
+                    <button type='button' onclick='showFeedbackModal()'>Provide Image Feedback</button>
+
+                    <form id='reportForm' method='post' style='display:none;'>
                         <input type='hidden' name='cardimage' value='<?php echo htmlspecialchars($cardimage); ?>'>
                         <input type='hidden' name='details' value='<?php echo htmlspecialchars($details); ?>'>
                         <input type='hidden' name='category_text' value='<?php echo htmlspecialchars($category_text); ?>'>
                         <input type='hidden' name='topic_text' value='<?php echo htmlspecialchars($topic_text); ?>'>
                         <input type='hidden' name='query' value='<?php echo htmlspecialchars($query); ?>'>
                         <input type='hidden' name='prompt' value='<?php echo htmlspecialchars($prompt); ?>'>
-                        <button type='submit'>Provide Image Feedback</button>
                     </form>
                 </form>
                 </td>
